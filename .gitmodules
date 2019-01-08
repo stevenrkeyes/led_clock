@@ -1,0 +1,3 @@
+[submodule "src/SoftPWM"]
+	path = src/SoftPWM
+	url = https://github.com/bhagman/SoftPWM/
