@@ -9,6 +9,13 @@
 #include <Adafruit_NeoPixel.h>
 #include "src/RTClib/RTClib.h"
 
+// Set the debouncing strategy to be "Lock Out" (i.e. register a button press immediately,
+// and then wait a cool-down period for subsequent presses), seems good experimentally
+#define BOUNCE_LOCK_OUT
+// Strangly, this file must be inclueded here even though it is only used in input_buttons.ino;
+// a quirk of Arduino
+#include "src/Bounce2/src/Bounce2.h"
+
 // Pin Defines
 #define PIN_PC0 (14)
 #define PIN_PC1 (15)
@@ -34,10 +41,8 @@ void setup() {
 
   power_led_heartbeat(POWER_LED_ENABLE);
 
-  pinMode(INPUT_BUTTON_1, INPUT);
-  digitalWrite(INPUT_BUTTON_1, HIGH);
-  pinMode(INPUT_BUTTON_2, INPUT);
-  digitalWrite(INPUT_BUTTON_2, HIGH);
+  init_brightness_button(INPUT_BUTTON_1);
+  init_pattern_button(INPUT_BUTTON_2);
 
   Serial.begin(9600);
 
@@ -87,10 +92,10 @@ void loop() {
   DateTime now = rtc.now();
 
   // Check buttons
-  int brightness_button_status = digitalRead(INPUT_BUTTON_1);
-  int pattern_button_status = digitalRead(INPUT_BUTTON_2);
+  int brightness_button_status = get_brightness_button_status();
+  int pattern_button_status = get_pattern_button_status();
 
-  if (!brightness_button_status) {
+  if (brightness_button_status) {
     for (int pixel_index=0; pixel_index < led_array.numPixels(); pixel_index++) {
       led_array.setPixelColor(pixel_index, led_array.Color(3, 3, 3));
     }

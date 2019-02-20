@@ -4,3 +4,6 @@
 [submodule "src/RTClib"]
 	path = src/RTClib
 	url = https://github.com/adafruit/RTClib.git
+[submodule "src/Bounce2"]
+	path = src/Bounce2
+	url = https://github.com/thomasfredericks/Bounce2.git
