@@ -83,8 +83,7 @@ void loop() {
 
   // Run Pattern
   if (brightness_button_status) {
-    led_array.fill(led_array.Color(3, 3, 3));
-    led_array.show();
+    run_pattern(led_array);
     delay(200);
   }
 
