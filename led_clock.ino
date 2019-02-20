@@ -13,6 +13,7 @@
 #define POWER_LED_ENABLE A0
 #define MANDALA_DATA A2
 
+
 Adafruit_NeoPixel led_array = Adafruit_NeoPixel(11*12, MANDALA_DATA, NEO_GRB + NEO_KHZ800);
 
 RTC_DS3231 rtc;
@@ -72,7 +73,7 @@ void setup() {
 
   led_array.begin();
 
-  for (int i=0; i < 7; i++){//led_array.numPixels(); i++) {
+  for (int i=0; i < led_array.numPixels(); i++) {
     for (int pixel_index=0; pixel_index < led_array.numPixels(); pixel_index++) {
       if (pixel_index <= i){
         led_array.setPixelColor(pixel_index, led_array.Color(4, 4, 4));
