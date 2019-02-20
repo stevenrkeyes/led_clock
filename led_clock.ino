@@ -9,10 +9,17 @@
 #include <Adafruit_NeoPixel.h>
 #include "src/RTClib/RTClib.h"
 
-// Pin Definitions
-#define POWER_LED_ENABLE A0
-#define MANDALA_DATA A2
+// Pin Defines
+#define PIN_PC0 (14)
+#define PIN_PC1 (15)
+#define PIN_PC2 (16)
+#define PIN_PD5 (11)
 
+// Pin Definitions
+#define POWER_LED_ENABLE PIN_PC0
+#define MANDALA_DATA     PIN_PC2
+#define INPUT_BUTTON_1   PIN_PC1
+#define INPUT_BUTTON_2   PIN_PD5
 
 Adafruit_NeoPixel led_array = Adafruit_NeoPixel(11*12, MANDALA_DATA, NEO_GRB + NEO_KHZ800);
 
@@ -26,6 +33,11 @@ void setup() {
   power_led_init(POWER_LED_ENABLE);
 
   power_led_heartbeat(POWER_LED_ENABLE);
+
+  pinMode(INPUT_BUTTON_1, INPUT);
+  digitalWrite(INPUT_BUTTON_1, HIGH);
+  pinMode(INPUT_BUTTON_2, INPUT);
+  digitalWrite(INPUT_BUTTON_2, HIGH);
 
   Serial.begin(9600);
 
@@ -60,51 +72,38 @@ void setup() {
       }
     }
     led_array.show();
-    delay(500);
+    delay(5);
   }
+  delay(500);
+
+  for (int pixel_index=0; pixel_index < led_array.numPixels(); pixel_index++) {
+    led_array.setPixelColor(pixel_index, led_array.Color(0, 0, 0));
+  }
+  led_array.show();
+  delay(300);
 }
 
 void loop() {
   DateTime now = rtc.now();
 
-  Serial.print(now.year(), DEC);
-  Serial.print('/');
-  Serial.print(now.month(), DEC);
-  Serial.print('/');
-  Serial.print(now.day(), DEC);
-  Serial.print(" (");
-  Serial.print(daysOfTheWeek[now.dayOfTheWeek()]);
-  Serial.print(") ");
-  Serial.print(now.hour(), DEC);
-  Serial.print(':');
-  Serial.print(now.minute(), DEC);
-  Serial.print(':');
-  Serial.print(now.second(), DEC);
-  Serial.println();
+  // Check buttons
+  int brightness_button_status = digitalRead(INPUT_BUTTON_1);
+  int pattern_button_status = digitalRead(INPUT_BUTTON_2);
 
-  Serial.print(" since midnight 1/1/1970 = ");
-  Serial.print(now.unixtime());
-  Serial.print("s = ");
-  Serial.print(now.unixtime() / 86400L);
-  Serial.println("d");
+  if (!brightness_button_status) {
+    for (int pixel_index=0; pixel_index < led_array.numPixels(); pixel_index++) {
+      led_array.setPixelColor(pixel_index, led_array.Color(3, 3, 3));
+    }
+    led_array.show();
+    delay(200);
+  }
 
-  // calculate a date which is 7 days and 30 seconds into the future
-  DateTime future (now + TimeSpan(7,12,30,6));
+  // Run Pattern
 
-  Serial.print(" now + 7d + 30s: ");
-  Serial.print(future.year(), DEC);
-  Serial.print('/');
-  Serial.print(future.month(), DEC);
-  Serial.print('/');
-  Serial.print(future.day(), DEC);
-  Serial.print(' ');
-  Serial.print(future.hour(), DEC);
-  Serial.print(':');
-  Serial.print(future.minute(), DEC);
-  Serial.print(':');
-  Serial.print(future.second(), DEC);
-  Serial.println();
+  for (int pixel_index=0; pixel_index < led_array.numPixels(); pixel_index++) {
+    led_array.setPixelColor(pixel_index, led_array.Color(0, 0, 0));
+  }
+  led_array.show();
+  delay(10);
 
-  Serial.println();
-  delay(3000);
 }
