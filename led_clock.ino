@@ -44,7 +44,7 @@ void setup() {
 
   power_led_heartbeat(POWER_LED_ENABLE);
 
-  delay(2000); // wait for console opening
+  delay(500); // wait for console opening
 
   if (! rtc.begin()) {
     Serial.println("Couldn't find RTC");
@@ -64,7 +64,7 @@ void setup() {
   led_array.fill(led_array.Color(0, 0, 0));
   led_array.show();
 
-  run_color_wipe(led_array, led_array.Color(4, 4, 4), 5);
+  run_color_wipe(led_array, led_array.Color(4, 4, 4), 4);
 
   delay(500);
 
@@ -75,7 +75,7 @@ void setup() {
 }
 
 #define MAX_BRIGHTNESS 30
-#define MAX_BRIGHTNESS_LEVEL 5
+#define MAX_BRIGHTNESS_LEVEL 10
 #define NUM_PATTERNS 4
 
 void loop() {
@@ -83,10 +83,24 @@ void loop() {
   int brightness_button_status = get_brightness_button_status();
   int pattern_button_status = get_pattern_button_status();
 
-  static int brightness_level = 1;
+  static int brightness_level = 3;
+  static bool brightness_level_increasing = true;
 
   if (brightness_button_status) {
-    brightness_level = (brightness_level + 1) % MAX_BRIGHTNESS_LEVEL;
+    if (brightness_level_increasing) {
+      brightness_level += 1;
+      if (brightness_level == MAX_BRIGHTNESS_LEVEL) {
+        brightness_level = MAX_BRIGHTNESS_LEVEL - 2;
+        brightness_level_increasing = false;
+      }
+    }
+    else {
+      brightness_level -= 1;
+      if (brightness_level == 0) {
+        brightness_level = 2;
+        brightness_level_increasing = true;
+      }
+    }
   }
 
   static int pattern_index = 0;
