@@ -1,6 +1,6 @@
 /*
   LED Clock
-  
+
   Steven Keyes
 
   This is firmware for a LED clock.
@@ -20,7 +20,7 @@
 #define PIN_PC0 (14)
 #define PIN_PC1 (15)
 #define PIN_PC2 (16)
-#define PIN_PD5 (11)
+#define PIN_PD5 (5)
 
 // Pin Definitions
 #define POWER_LED_ENABLE PIN_PC0
@@ -28,7 +28,7 @@
 #define INPUT_BUTTON_1   PIN_PC1
 #define INPUT_BUTTON_2   PIN_PD5
 
-Adafruit_NeoPixel led_array = Adafruit_NeoPixel(11*12, MANDALA_DATA, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel led_array = Adafruit_NeoPixel(11 * 12, MANDALA_DATA, NEO_GRB + NEO_KHZ800);
 
 RTC_DS3231 rtc;
 
@@ -74,22 +74,47 @@ void setup() {
   delay(300);
 }
 
-void loop() {
-  DateTime now = rtc.now();
+#define MAX_BRIGHTNESS 30
+#define MAX_BRIGHTNESS_LEVEL 5
+#define NUM_PATTERNS 4
 
+void loop() {
   // Check buttons
   int brightness_button_status = get_brightness_button_status();
   int pattern_button_status = get_pattern_button_status();
 
-  // Run Pattern
+  static int brightness_level = 1;
+
   if (brightness_button_status) {
-    run_pattern(led_array);
-    delay(200);
+    brightness_level = (brightness_level + 1) % MAX_BRIGHTNESS_LEVEL;
   }
 
-  led_array.fill(led_array.Color(0, 0, 0));
-  led_array.show();
+  static int pattern_index = 0;
 
-  delay(10);
+  if (pattern_button_status) {
+    pattern_index = (pattern_index + 1) % NUM_PATTERNS;
+  }
 
+  // Run Pattern
+  if (brightness_level != 0) {
+    DateTime now = rtc.now();
+
+    switch (pattern_index)
+    {
+      case 0:
+        show_basic_clock_frame(led_array, brightness_level, now);
+        break;
+      case 1:
+        show_pattern_bar_frame(led_array, brightness_level, now);
+        break;
+      case 2:
+        show_pattern_foo_frame(led_array, brightness_level, now);
+        break;
+      case 3:
+        break;
+      default:
+        // Should never get here
+        break;
+    }
+  }
 }

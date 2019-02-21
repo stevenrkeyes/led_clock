@@ -44,3 +44,41 @@ void run_solid(Adafruit_NeoPixel &led_array, const uint8_t *pixel_subset, uint8_
 void run_pattern(Adafruit_NeoPixel &led_array) {
   run_solid(led_array, big_tip_dots, sizeof(big_tip_dots), led_array.Color(4, 4, 4));
 }
+
+void show_pattern_foo_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
+{
+  run_solid(led_array, big_tip_dots, sizeof(big_tip_dots), led_array.Color(4, 4, 4));
+}
+
+void show_pattern_bar_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
+{
+  run_solid(led_array, inner_circle, sizeof(inner_circle), led_array.Color(0, 0, 6));
+}
+
+void show_basic_clock_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
+{
+  uint16_t unnormalized_brightness_val = brightness_level * MAX_BRIGHTNESS;
+  uint8_t brightness_val = unnormalized_brightness_val / MAX_BRIGHTNESS_LEVEL;
+
+  led_array.fill(led_array.Color(0, 0, 0));
+
+  // Show the hour on the little circle
+  uint8_t hour_pixel_index = (now.hour() % 12) * sizeof(inner_circle) / 12;
+  hour_pixel_index = sizeof(inner_circle) - 1 - hour_pixel_index;
+  hour_pixel_index = (hour_pixel_index + sizeof(inner_circle) + 1) % sizeof(inner_circle);
+  led_array.setPixelColor(inner_circle[hour_pixel_index], led_array.Color(brightness_val, brightness_val, brightness_val));
+
+  // Show the minute on the middle circle
+  uint8_t minute_pixel_index = now.minute() * sizeof(middle_circle) / 60;
+  minute_pixel_index = sizeof(middle_circle) - 1 - minute_pixel_index;
+  minute_pixel_index = (minute_pixel_index + sizeof(middle_circle) + 2) % sizeof(middle_circle);
+  led_array.setPixelColor(middle_circle[minute_pixel_index], led_array.Color(brightness_val, brightness_val, brightness_val));
+
+  // Show the second on the outline
+  uint8_t second_pixel_index = now.second() * sizeof(outside_edge) / 60;
+  second_pixel_index = sizeof(outside_edge) - 1 - second_pixel_index;
+  second_pixel_index = (second_pixel_index + sizeof(outside_edge) + 5) % sizeof(outside_edge);
+  led_array.setPixelColor(outside_edge[second_pixel_index], led_array.Color(brightness_val, brightness_val, brightness_val));
+
+  led_array.show();
+}
