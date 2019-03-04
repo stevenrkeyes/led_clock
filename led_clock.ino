@@ -119,12 +119,13 @@ void loop() {
         show_basic_clock_frame(led_array, brightness_level, now);
         break;
       case 1:
-        show_pattern_bar_frame(led_array, brightness_level, now);
+        show_sparkle_frame(led_array, brightness_level, now);
         break;
       case 2:
-        show_pattern_foo_frame(led_array, brightness_level, now);
+        show_pattern_bar_frame(led_array, brightness_level, now);
         break;
       case 3:
+        show_pattern_foo_frame(led_array, brightness_level, now);
         break;
       default:
         // Should never get here

@@ -82,3 +82,43 @@ void show_basic_clock_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_lev
 
   led_array.show();
 }
+
+#define DECREMENT_AMOUNT (1)
+
+void show_sparkle_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
+{
+  // Every time a frame of this pattern occurs, each LED has a low probability of illuminating
+
+  for (uint8_t pixel_index = 0; pixel_index < led_array.numPixels(); pixel_index++) {
+    uint32_t current_color = led_array.getPixelColor(pixel_index);
+    if (random(200) > 197) {
+      led_array.setPixelColor(pixel_index, led_array.Color(brightness_level, brightness_level, brightness_level));
+    }
+    else {
+      uint8_t r = (uint8_t)(current_color >> 16);
+      uint8_t g = (uint8_t)(current_color >> 8);
+      uint8_t b = (uint8_t) current_color;
+      if (r > DECREMENT_AMOUNT) {
+        r -= DECREMENT_AMOUNT;
+      }
+      else {
+        r = 0;
+      }
+      if (g > DECREMENT_AMOUNT) {
+        g -= DECREMENT_AMOUNT;
+      }
+      else {
+        g = 0;
+      }
+      if (b > DECREMENT_AMOUNT) {
+        b -= DECREMENT_AMOUNT;
+      }
+      else {
+        b = 0;
+      }
+      led_array.setPixelColor(pixel_index, led_array.Color(r, g, b));
+
+    }
+  }
+  led_array.show();
+}
