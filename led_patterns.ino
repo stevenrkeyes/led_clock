@@ -50,11 +50,6 @@ void show_pattern_foo_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_lev
   run_solid(led_array, big_tip_dots, sizeof(big_tip_dots), led_array.Color(4, 4, 4));
 }
 
-void show_pattern_bar_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
-{
-  run_solid(led_array, inner_circle, sizeof(inner_circle), led_array.Color(0, 0, 6));
-}
-
 void show_basic_clock_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
 {
   uint16_t unnormalized_brightness_val = brightness_level * MAX_BRIGHTNESS;
@@ -119,6 +114,53 @@ void show_sparkle_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, 
       led_array.setPixelColor(pixel_index, led_array.Color(r, g, b));
 
     }
+  }
+  led_array.show();
+}
+
+// Input a value 0 to 3 * brightness_val to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t wheel(Adafruit_NeoPixel &led_array, uint16_t wheel_pos, uint8_t brightness_val) {
+  uint8_t r, g, b;
+  wheel_pos = 3 * brightness_val - wheel_pos;
+  if (wheel_pos < brightness_val) {
+    r = brightness_val - wheel_pos;
+    g = 0;
+    b = wheel_pos;
+    return led_array.Color(r, g, b);
+  }
+  if (wheel_pos < 2 * brightness_val) {
+    wheel_pos -= brightness_val;
+    r = 0;
+    g = wheel_pos;
+    b = brightness_val - wheel_pos;
+    return led_array.Color(r, g, b);
+  }
+  wheel_pos -= 2 * brightness_val;
+  r = wheel_pos;
+  g = brightness_val - wheel_pos;
+  b = 0;
+  return led_array.Color(r, g, b);
+}
+
+void show_slow_rainbow_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
+{
+  // Fades through a rainbow over the course of a day
+
+  uint16_t unnormalized_brightness_val = brightness_level * MAX_BRIGHTNESS;
+  uint8_t brightness_val = unnormalized_brightness_val / MAX_BRIGHTNESS_LEVEL;
+
+  led_array.fill(led_array.Color(0, 0, 0));
+
+  // Convert the time of day to a number from 0 to 255
+  uint16_t now_minutes = now.hour() * 60 + now.minute();
+  uint16_t max_wheel = brightness_val * 3;
+  uint32_t now_minutes_normalized = now_minutes * max_wheel / (24 * 60);
+
+  uint32_t current_color = wheel(led_array, (uint16_t) now_minutes_normalized, brightness_val);
+
+  for (uint8_t pixel_index = 0; pixel_index < led_array.numPixels(); pixel_index++) {
+    led_array.setPixelColor(pixel_index, current_color);
   }
   led_array.show();
 }
