@@ -113,6 +113,9 @@ void loop() {
   if (brightness_level != 0) {
     DateTime now = rtc.now();
 
+    // The rtc doesn't track milliseconds, so estimate it using the system clock
+    uint16_t now_ms = get_now_ms(now);
+
     switch (pattern_index)
     {
       case 0:
@@ -125,7 +128,7 @@ void loop() {
         show_slow_rainbow_frame(led_array, brightness_level, now);
         break;
       case 3:
-        show_rainbow_loop_frame(led_array, brightness_level, now);
+        show_rainbow_cycle_frame(led_array, brightness_level, now, now_ms);
         break;
       default:
         // Should never get here

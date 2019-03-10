@@ -162,7 +162,7 @@ void show_slow_rainbow_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_le
 
 #define CYCLE_TIME_MS (10000)
 
-void show_rainbow_loop_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
+void show_rainbow_cycle_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now, uint16_t now_ms)
 {
   // Applies a rainbow cycle that wraps around the led array
 
@@ -173,7 +173,7 @@ void show_rainbow_loop_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_le
 
   // The RTC doesn't have ms precision, but I want this pattern to move faster than once a second,
   // so use the microcontroller clock (imprecise for long term timing)
-  uint32_t elapsed_time_ms = millis() % CYCLE_TIME_MS;
+  uint32_t elapsed_time_ms = (now_ms + 1000 * now.second()) % CYCLE_TIME_MS;
   float fraction_complete = ((float)elapsed_time_ms / CYCLE_TIME_MS);
   float max_wheel = brightness_val * 3;
   float base_wheel_position = max_wheel * fraction_complete;
