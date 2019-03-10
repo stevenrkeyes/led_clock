@@ -230,3 +230,36 @@ void show_rainbow_cycle_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_l
   }
   led_array.show();
 }
+
+uint8_t triangle(uint8_t phase) {
+  phase = phase % 255;
+  if (phase < 128)
+  {
+    return phase;
+  }
+  else
+  {
+    return 255 - phase;
+  }
+}
+
+void show_red_pulse_clock_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now, uint16_t now_ms)
+{
+  // Displays a mostly red background with dark pulses and yellow pulses moving around
+
+  double total_time_ms = (now.minute() * 60 + now.second()) * 1000 + now_ms;
+
+  uint16_t unnormalized_brightness_val = brightness_level * MAX_BRIGHTNESS;
+  uint8_t brightness_val = unnormalized_brightness_val / MAX_BRIGHTNESS_LEVEL;
+
+  led_array.fill(led_array.Color(0, 0, 0));
+
+  for (int pixel_index = 0; pixel_index < led_array.numPixels(); pixel_index++) {
+    uint8_t r = brightness_val * (1.0 / 255) * (120 + 0.5 * (triangle(0.04 * total_time_ms + 20 * pixel_index)));
+    uint8_t g = brightness_val * (0.7 / 255) * (triangle(0.08 * total_time_ms + 20 * pixel_index + 127));
+    uint8_t b = brightness_val * (0.5 / 255) * (triangle(0.08 * total_time_ms + 20 * pixel_index + 127));
+    led_array.setPixelColor(pixel_index, led_array.Color(r, g, b));
+  }
+
+  led_array.show();
+}

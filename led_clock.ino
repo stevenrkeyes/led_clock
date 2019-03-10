@@ -76,7 +76,7 @@ void setup() {
 
 #define MAX_BRIGHTNESS 30
 #define MAX_BRIGHTNESS_LEVEL 10
-#define NUM_PATTERNS 4
+#define NUM_PATTERNS 5
 
 void loop() {
   // Check buttons
@@ -129,6 +129,9 @@ void loop() {
         break;
       case 3:
         show_rainbow_cycle_frame(led_array, brightness_level, now, now_ms);
+        break;
+      case 4:
+        show_red_pulse_clock_frame(led_array, brightness_level, now, now_ms);
         break;
       default:
         // Should never get here
