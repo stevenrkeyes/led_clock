@@ -125,7 +125,7 @@ void loop() {
         show_sparkle_frame(led_array, brightness_level, now);
         break;
       case 2:
-        show_slow_rainbow_frame(led_array, brightness_level, now);
+        show_slow_rainbow_frame(led_array, brightness_level, now, now_ms);
         break;
       case 3:
         show_rainbow_cycle_frame(led_array, brightness_level, now, now_ms);

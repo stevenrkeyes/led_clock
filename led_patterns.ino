@@ -138,7 +138,35 @@ uint32_t wheel(Adafruit_NeoPixel &led_array, uint16_t wheel_pos, uint8_t brightn
   return led_array.Color(r, g, b);
 }
 
-void show_slow_rainbow_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
+uint8_t get_heartbeat_value(DateTime now, uint16_t now_ms, uint8_t brightness_val, uint16_t period_sec) {
+  float total_time_ms = now.second() * 1000 + now_ms;
+  float elapsed_time_ms = fmod(total_time_ms, period_sec * 1000);
+
+  float heartbeat_val_float = 0;
+
+  if (elapsed_time_ms < 250) {
+    heartbeat_val_float = brightness_val * (elapsed_time_ms / 250);
+  }
+  else if (elapsed_time_ms < 500) {
+    heartbeat_val_float = brightness_val * (1 - ((elapsed_time_ms - 250) / 250));
+  }
+  else if (elapsed_time_ms < 550) {
+    heartbeat_val_float = 0;
+  }
+  else if (elapsed_time_ms < 750) {
+    heartbeat_val_float = 0.8 * brightness_val * ((elapsed_time_ms - 550) / 200);
+  }
+  else if (elapsed_time_ms < 950) {
+    heartbeat_val_float = 0.8 * brightness_val * (1 - ((elapsed_time_ms - 750) / 200));
+  }
+  else {
+    heartbeat_val_float = 0;
+  }
+
+  return (uint8_t) heartbeat_val_float;
+}
+
+void show_slow_rainbow_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now, uint16_t now_ms)
 {
   // Fades through a rainbow over the course of a day
 
@@ -154,8 +182,24 @@ void show_slow_rainbow_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_le
 
   uint32_t current_color = wheel(led_array, (uint16_t) now_minutes_normalized, brightness_val);
 
+  uint8_t r = (uint8_t)(current_color >> 16);
+  uint8_t g = (uint8_t)(current_color >> 8);
+  uint8_t b = (uint8_t) current_color;
+
+  uint8_t heartbeat_brightness = brightness_val * 0.7;
+  uint8_t heartbeat_val = get_heartbeat_value(now, now_ms, heartbeat_brightness, 3);
+  r = max(r, heartbeat_val);
+  g = max(g, heartbeat_val);
+  b = max(b, heartbeat_val);
+
+  uint32_t current_color_with_heartbeat = led_array.Color(r, g, b);
+
   for (uint8_t pixel_index = 0; pixel_index < led_array.numPixels(); pixel_index++) {
     led_array.setPixelColor(pixel_index, current_color);
+  }
+  for (uint8_t i = 0; i < sizeof(middle_circle); i++) {
+    uint8_t pixel_index = middle_circle[i];
+    led_array.setPixelColor(pixel_index, current_color_with_heartbeat);
   }
   led_array.show();
 }
