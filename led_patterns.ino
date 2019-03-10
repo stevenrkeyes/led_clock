@@ -228,6 +228,25 @@ void show_rainbow_cycle_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_l
     uint32_t color = wheel(led_array, pixel_wheel_position, brightness_val);
     led_array.setPixelColor(pixel_index, color);
   }
+
+  for (uint8_t i = 0; i < sizeof(big_leaves); i++) {
+    uint8_t pixel_index = big_leaves[i];
+    uint32_t current_color = led_array.getPixelColor(pixel_index);
+
+    uint8_t r = (uint8_t)(current_color >> 16);
+    uint8_t g = (uint8_t)(current_color >> 8);
+    uint8_t b = (uint8_t) current_color;
+
+    // Todo: clean up this black magic one-liner
+    uint8_t pulse_brightness = brightness_val * 0.9 * abs(2.0 * (fmod((float)i + 2 * sizeof(big_leaves) * (1 - fraction_complete), sizeof(big_leaves)) / sizeof(big_leaves)) - 1.0);
+    r = max(r, pulse_brightness);
+    g = max(g, pulse_brightness);
+    b = max(b, pulse_brightness);
+    uint32_t current_color_with_pulse = led_array.Color(r, g, b);
+
+    led_array.setPixelColor(pixel_index, current_color_with_pulse);
+  }
+
   led_array.show();
 }
 
