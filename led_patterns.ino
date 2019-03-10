@@ -45,11 +45,6 @@ void run_pattern(Adafruit_NeoPixel &led_array) {
   run_solid(led_array, big_tip_dots, sizeof(big_tip_dots), led_array.Color(4, 4, 4));
 }
 
-void show_pattern_foo_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
-{
-  run_solid(led_array, big_tip_dots, sizeof(big_tip_dots), led_array.Color(4, 4, 4));
-}
-
 void show_basic_clock_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
 {
   uint16_t unnormalized_brightness_val = brightness_level * MAX_BRIGHTNESS;
@@ -161,6 +156,33 @@ void show_slow_rainbow_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_le
 
   for (uint8_t pixel_index = 0; pixel_index < led_array.numPixels(); pixel_index++) {
     led_array.setPixelColor(pixel_index, current_color);
+  }
+  led_array.show();
+}
+
+#define CYCLE_TIME_MS (10000)
+
+void show_rainbow_loop_frame(Adafruit_NeoPixel &led_array, uint8_t brightness_level, DateTime now)
+{
+  // Applies a rainbow cycle that wraps around the led array
+
+  uint16_t unnormalized_brightness_val = brightness_level * MAX_BRIGHTNESS;
+  uint8_t brightness_val = unnormalized_brightness_val / MAX_BRIGHTNESS_LEVEL;
+
+  led_array.fill(led_array.Color(0, 0, 0));
+
+  // The RTC doesn't have ms precision, but I want this pattern to move faster than once a second,
+  // so use the microcontroller clock (imprecise for long term timing)
+  uint32_t elapsed_time_ms = millis() % CYCLE_TIME_MS;
+  float fraction_complete = ((float)elapsed_time_ms / CYCLE_TIME_MS);
+  float max_wheel = brightness_val * 3;
+  float base_wheel_position = max_wheel * fraction_complete;
+
+  for (int pixel_index = 0; pixel_index < led_array.numPixels(); pixel_index++) {
+    float pixel_wheel_position_unbounded = (pixel_index * max_wheel / led_array.numPixels()) + base_wheel_position;
+    uint16_t pixel_wheel_position = fmod(pixel_wheel_position_unbounded, max_wheel);
+    uint32_t color = wheel(led_array, pixel_wheel_position, brightness_val);
+    led_array.setPixelColor(pixel_index, color);
   }
   led_array.show();
 }

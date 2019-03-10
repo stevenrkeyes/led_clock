@@ -125,7 +125,7 @@ void loop() {
         show_slow_rainbow_frame(led_array, brightness_level, now);
         break;
       case 3:
-        show_pattern_foo_frame(led_array, brightness_level, now);
+        show_rainbow_loop_frame(led_array, brightness_level, now);
         break;
       default:
         // Should never get here
